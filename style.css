@@ -339,6 +339,7 @@ html, body {
     padding: 14px 16px;
     height: 460px;
     overflow-y: auto;
+    overflow-x: hidden;
     font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
     font-size: 0.92rem;
     line-height: 1.5;
@@ -370,12 +371,18 @@ html, body {
 
 .terminal-input {
     flex: 1;
+    min-width: 0;
     background: transparent;
     border: none;
     outline: none;
     color: var(--term-text);
     font-family: inherit;
-    font-size: inherit;
+    /* Явно задан размер от 16px: на мобильных браузерах (особенно iOS Safari)
+       поле ввода со шрифтом меньше 16px вызывает автоматический зум при фокусе,
+       из-за чего страница визуально «скачет». Значение не наследуется от
+       .terminal-body, чтобы не зависеть от уменьшения шрифта на мобильных
+       медиа-запросах ниже. */
+    font-size: 16px;
     caret-color: var(--accent);
 }
 
