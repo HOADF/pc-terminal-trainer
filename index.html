@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="HeadOFADedFox, HOADF">
+    <meta name="keywords" content="командная строка, CMD, терминал, тренажёр, справочник команд Windows">
+    <meta name="description" content="Интерактивный тренажёр команд терминала Windows (CMD): вводите команды и смотрите примерный результат, с подсказками и автодополнением.">
+    <link rel="canonical" href="https://hoadf.github.io/pc-terminal-trainer/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:site_name" content="PC Terminal Trainer">
+    <meta property="og:title" content="PC Terminal Trainer — тренажёр команд Windows">
+    <meta property="og:description" content="Интерактивный тренажёр команд терминала Windows (CMD): вводите команды и смотрите примерный результат, с подсказками и автодополнением.">
+    <meta property="og:url" content="https://hoadf.github.io/pc-terminal-trainer/">
+    <meta property="og:image" content="https://hoadf.github.io/pc-terminal-trainer/images/preview.png">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>PC Terminal Trainer — тренажёр команд Windows</title>
+    <link href="style.css" rel="stylesheet" type="text/css" media="all">
+</head>
+<body>
+
+    <header class="top-bar">
+        <h1>PC Terminal Trainer</h1>
+        <p>Тренажёр команд Windows (CMD) — вводите команды и смотрите примерный результат</p>
+        <button id="toggle-panel" class="panel-toggle" type="button" aria-expanded="false" aria-controls="ref-panel">
+            📖 Список команд
+        </button>
+    </header>
+
+    <main class="layout">
+        <section class="terminal-wrap">
+            <div class="terminal-window">
+                <div class="terminal-titlebar">
+                    <div class="tb-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="tb-title">Командная строка</span>
+                </div>
+                <div class="terminal-body" id="terminal-body">
+                    <div class="terminal-output" id="terminal-output"></div>
+                    <div class="terminal-input-line">
+                        <span class="prompt" id="prompt-text">C:\Users\Guest&gt;</span>
+                        <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Введите команду">
+                    </div>
+                </div>
+                <div class="terminal-controls">
+                    <button type="button" data-action="tab">Tab ↹</button>
+                    <button type="button" data-action="up">↑ История</button>
+                    <button type="button" data-action="down">↓ История</button>
+                    <button type="button" data-action="enter">Enter ⏎</button>
+                </div>
+            </div>
+            <p class="hint-line">Введите <code>help</code>, чтобы увидеть список всех команд, или начните печатать — появятся подсказки. Tab — автодополнение, ↑/↓ — история команд.</p>
+        </section>
+
+        <aside class="ref-panel" id="ref-panel">
+            <h2>Справочник команд</h2>
+            <div id="ref-list"></div>
+        </aside>
+    </main>
+
+    <p class="disclaimer">Это обучающая симуляция: команды не выполняются на настоящем компьютере, вывод — приблизительный учебный пример.</p>
+
+    <footer>
+        <p>© 2026 PC Terminal Trainer — сайт: <a href="https://github.com/HOADF" target="_blank" rel="noopener">HOADF</a></p>
+    </footer>
+
+    <script src="commands.js"></script>
+    <script src="script.js"></script>
+
+    <!-- Cloudflare Web Analytics -->
+    <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "20023edfd3f94d13827cb5a56c36ee82"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
