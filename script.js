@@ -283,32 +283,51 @@
     const powerBtnOverlay = document.getElementById("power-btn-overlay");
 
     const BOOT_LINES = [
-        "HOADF BIOS v2.6  —  Copyright (C) HOADF",
-        "Проверка видеопамяти...                OK",
-        "Проверка оперативной памяти: 640K       OK",
-        "Обнаружен накопитель: C:\\                OK",
+        "HOADF BIOS v2.6 — Copyright (C) HOADF",
+        "Проверка видеопамяти... OK",
+        "Проверка оперативной памяти: 640K OK",
+        "Обнаружен накопитель: C:\\ OK",
         "Загрузка HOADF Terminal...",
     ];
 
     let isOn = false;
     let isBusy = false;
 
-    function typeBootLine(text, className, delay) {
+    function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Печатает строку посимвольно, как в старом BIOS, и ждёт паузу после неё
+    function typeBootLine(text, className, pauseAfter) {
         return new Promise(resolve => {
-            setTimeout(() => {
-                appendLine(text, className || "line-system");
+            const div = document.createElement("div");
+            div.className = className || "line-system";
+            output.appendChild(div);
+
+            let i = 0;
+            const charDelay = 16;
+
+            function step() {
+                div.textContent = text.slice(0, i);
                 scrollToBottom();
-                resolve();
-            }, delay);
+                if (i < text.length) {
+                    i++;
+                    setTimeout(step, charDelay);
+                } else {
+                    setTimeout(resolve, pauseAfter);
+                }
+            }
+            step();
         });
     }
 
     async function runBootSequence() {
         output.innerHTML = "";
-        for (let i = 0; i < BOOT_LINES.length; i++) {
-            await typeBootLine(BOOT_LINES[i], "line-system", i === 0 ? 120 : 220);
+        await wait(650); // монитор "прогревается" перед первой строкой
+        for (const line of BOOT_LINES) {
+            await typeBootLine(line, "line-system", 480);
         }
-        await typeBootLine("", "line-output", 150);
+        await wait(700);
         output.innerHTML = "";
         showWelcome();
         input.disabled = false;
