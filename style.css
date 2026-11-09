@@ -14,6 +14,11 @@
     --cat-system: #f2b84b;
     --cat-network: #4bb8f2;
     --cat-misc: #c792ea;
+
+    /* бумага блокнота */
+    --paper-bg: #f4efe2;
+    --paper-text: #2a2720;
+    --paper-muted: #6e6758;
 }
 
 * { box-sizing: border-box; }
@@ -24,43 +29,40 @@ html, body {
     background: var(--bg);
     color: var(--term-text);
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-.panel-toggle {
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    color: var(--term-text);
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    display: none;
-    margin: 12px auto 0;
-}
-
-.panel-toggle:hover {
-    border-color: var(--accent-soft);
+body {
+    display: flex;
+    flex-direction: column;
 }
 
 .layout {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 28px;
+    justify-content: flex-start;
+    gap: 22px;
     flex-wrap: nowrap;
-    min-height: 100vh;
-    padding: 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 18px 26px 18px 18px;
 }
 
 .terminal-wrap {
     min-width: 0;
     max-width: 760px;
+    flex: 0 1 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* ---------- Старый монитор (корпус вокруг терминала) ---------- */
 
 .crt-monitor {
+    width: 100%;
     max-width: 760px;
     margin: 0 auto;
 }
@@ -413,14 +415,16 @@ html, body {
     color: var(--accent);
 }
 
-/* ---------- Блокнот-справочник (широкие экраны) ---------- */
+/* ---------- Блокнот-справочник ---------- */
 
 .notebook {
     position: relative;
-    width: 360px;
-    flex-shrink: 0;
-    height: clamp(420px, 70vh, 640px);
+    flex: 1 1 auto;
+    max-width: 640px;
+    height: 100%;
+    max-height: 88vh;
     font-size: 0.85rem;
+    margin-right: 6px; /* место, чтобы ярлычки не обрезались краем экрана */
 }
 
 .notebook-cover {
@@ -428,8 +432,8 @@ html, body {
     top: 0;
     right: 0;
     bottom: 0;
-    width: 52%;
-    min-width: 170px;
+    width: 50%;
+    min-width: 160px;
     background: linear-gradient(160deg, #2a2f3a, #14161c);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -441,7 +445,7 @@ html, body {
     text-align: center;
     padding: 20px 16px;
     z-index: 2;
-    transition: width 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    transition: width 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
 }
 
 .notebook.open .notebook-cover {
@@ -455,7 +459,7 @@ html, body {
 
 .notebook-cover h2 {
     margin: 0 0 6px;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--accent);
     letter-spacing: 0.5px;
 }
@@ -463,7 +467,7 @@ html, body {
 .notebook-cover p {
     margin: 0 0 16px;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.8rem;
 }
 
 .notebook-cover-label {
@@ -478,19 +482,18 @@ html, body {
     white-space: nowrap;
 }
 
+/* внешняя тёмная "обложка" — рамка вокруг белых страниц, чуть крупнее их */
 .notebook-pages {
     position: absolute;
     inset: 0;
-    display: flex;
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 9px;
+    background: linear-gradient(160deg, #2a2f3a, #14161c);
     border: 1px solid var(--border);
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    perspective: 1400px;
 }
 
 .notebook.open .notebook-pages {
@@ -498,38 +501,62 @@ html, body {
     pointer-events: auto;
 }
 
+/* внутренние белые страницы — чуть меньше обложки, виден тёмный кант */
+.notebook-paper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: var(--paper-bg);
+    border-radius: 7px;
+    overflow: hidden;
+    perspective: 1400px;
+}
+
 .notebook-page {
+    flex: 0 0 50%;
     min-width: 0;
-    padding: 20px 14px;
-    overflow-y: auto;
+    padding: 20px 16px;
+    overflow: hidden;
+    color: var(--paper-text);
 }
 
 .notebook-page-left {
-    flex: 0 0 36%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(160deg, #181b22, #0f1116);
-    border-right: 1px solid var(--border);
+    background: rgba(0,0,0,0.035);
+    border-right: 1px dashed rgba(0,0,0,0.15);
 }
 
 .notebook-page-icon {
-    font-size: 2rem;
+    font-size: 2.1rem;
     margin-bottom: 10px;
 }
 
 .notebook-page-left h3 {
     margin: 0;
-    font-size: 0.92rem;
-    color: var(--active-cat-color, var(--accent));
+    font-size: 0.95rem;
+    color: var(--active-cat-color, var(--accent-soft));
+}
+
+.notebook-mobile-header {
+    display: none;
 }
 
 .notebook-page-right {
-    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
     transform-origin: left center;
     backface-visibility: hidden;
+}
+
+.notebook-cmd-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .notebook-page-right.flipping-fwd { animation: page-flip-fwd 0.45s ease; }
@@ -551,25 +578,25 @@ html, body {
 
 .notebook-close {
     position: absolute;
-    top: 8px;
+    top: 6px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 6;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.35);
-    border: 1px solid var(--border);
-    color: var(--muted);
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #d8d3c5;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: opacity 0.2s ease, color 0.2s ease;
 }
 
 .notebook.open .notebook-close {
@@ -579,7 +606,6 @@ html, body {
 
 .notebook-close:hover {
     color: var(--accent);
-    border-color: var(--accent-soft);
 }
 
 .notebook-tabs {
@@ -591,35 +617,37 @@ html, body {
 
 .notebook-tab {
     position: absolute;
-    min-width: 92px;
-    padding: 9px 12px;
+    top: var(--slot-v, 14px);
+    min-width: 64px;
+    padding: 7px 9px;
     background: var(--tab-color, var(--accent));
     color: #10121a;
-    font-size: 0.7rem;
+    font-size: 0.64rem;
     font-weight: 700;
     border: none;
     cursor: pointer;
     pointer-events: auto;
     box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-    transition: right 0.4s ease, left 0.4s ease, filter 0.2s ease, outline-color 0.2s ease;
+    transition: right 0.35s ease, left 0.35s ease, bottom 0.35s ease, filter 0.2s ease, outline-color 0.2s ease;
     outline: 2px solid transparent;
     outline-offset: -2px;
+    white-space: nowrap;
 }
 
 .notebook-tab.pos-right {
-    right: -20px;
+    right: -16px;
     left: auto;
-    border-radius: 6px 0 0 6px;
+    border-radius: 5px 0 0 5px;
     text-align: right;
-    padding-right: 24px;
+    padding-right: 18px;
 }
 
 .notebook-tab.pos-left {
-    left: -20px;
+    left: -16px;
     right: auto;
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 5px 5px 0;
     text-align: left;
-    padding-left: 24px;
+    padding-left: 18px;
 }
 
 .notebook-tab:hover {
@@ -627,7 +655,7 @@ html, body {
 }
 
 .notebook-tab.active {
-    outline-color: rgba(255,255,255,0.55);
+    outline-color: rgba(0,0,0,0.3);
 }
 
 .notebook-cmd {
@@ -635,109 +663,82 @@ html, body {
     text-align: left;
     background: transparent;
     border: none;
-    color: var(--term-text);
-    padding: 7px 8px;
+    color: var(--paper-text);
+    padding: 6px 6px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     display: block;
 }
 
 .notebook-cmd:hover {
-    background: #1b1f28;
+    background: rgba(0,0,0,0.06);
 }
 
 .notebook-cmd b {
-    color: var(--active-cat-color, var(--accent));
+    color: var(--active-cat-color, var(--accent-soft));
     font-family: "Cascadia Code", "Consolas", monospace;
 }
 
 .notebook-cmd span {
     display: block;
-    color: var(--muted);
-    font-size: 0.76rem;
-    margin-top: 2px;
+    color: var(--paper-muted);
+    font-size: 0.74rem;
+    margin-top: 1px;
 }
 
-/* ---------- Простой список команд (мобильные экраны) ---------- */
-
-.ref-panel {
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    max-height: 560px;
-    overflow-y: auto;
+.notebook-pager {
+    flex: 0 0 auto;
     display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(0,0,0,0.15);
 }
 
-.ref-panel h2 {
-    margin: 0 0 10px;
-    font-size: 1rem;
-    color: var(--accent);
-}
+.notebook-pager.show { display: flex; }
 
-.ref-category h3 {
-    font-size: 0.85rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 14px 0 6px;
-}
-
-.ref-category:first-child h3 { margin-top: 0; }
-
-.ref-cmd {
-    width: 100%;
-    text-align: left;
+.notebook-pager button {
     background: transparent;
-    border: none;
-    color: var(--term-text);
-    padding: 6px 8px;
-    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.2);
+    color: var(--paper-text);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 0.85rem;
-    display: block;
-}
-
-.ref-cmd:hover {
-    background: #1b1f28;
-}
-
-.ref-cmd b {
-    color: var(--accent);
-    font-family: "Cascadia Code", "Consolas", monospace;
-}
-
-.ref-cmd span {
-    display: block;
-    color: var(--muted);
-    font-size: 0.78rem;
-    margin-top: 2px;
-}
-
-.disclaimer {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.78rem;
-    max-width: 700px;
-    margin: 0 auto 10px;
-    padding: 0 20px;
-}
-
-footer {
-    text-align: center;
-    color: var(--muted);
     font-size: 0.8rem;
-    padding: 10px 0 26px;
+    line-height: 1;
 }
 
-footer a {
+.notebook-pager button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.notebook-pager span {
+    font-size: 0.72rem;
+    color: var(--paper-muted);
+}
+
+/* ---------- Подвал ---------- */
+
+.bottom-bar {
+    flex: 0 0 auto;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.72rem;
+    padding: 6px 16px;
+}
+
+.bottom-bar p { margin: 0; }
+
+.bottom-bar a {
     color: var(--accent);
     text-decoration: none;
 }
 
-footer a:hover { text-decoration: underline; }
+.bottom-bar a:hover { text-decoration: underline; }
 
 /* Автодополнение-подсказки прямо под инпутом */
 .suggest-list {
@@ -765,42 +766,109 @@ footer a:hover { text-decoration: underline; }
 
 /* Адаптивность */
 
-/* Блокнот умещается только там, где реально есть место рядом с монитором */
-@media (min-width: 1101px) {
-    .notebook { display: block; }
-}
-
+/* Блокнот-разворот умещается только там, где реально есть место рядом с монитором */
 @media (max-width: 1100px) {
+    body { overflow: hidden; }
+
     .layout {
         flex-direction: column;
-        min-height: 0;
-        padding: 20px 20px 4px;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 10px 10px;
     }
-    .notebook {
-        display: none;
-    }
-    .ref-panel {
-        max-height: 50vh;
+
+    .terminal-wrap {
+        flex: 0 0 auto;
         width: 100%;
-        max-width: 760px;
+        max-width: 420px;
+        height: auto;
+        justify-content: flex-start;
     }
-    .ref-panel.open {
-        display: block;
+
+    .crt-bezel { padding: 16px 14px 10px; border-radius: 10px 10px 18px 18px; }
+    .crt-brand { font-size: 0.6rem; margin-bottom: 6px; }
+    .terminal-body { height: clamp(120px, 24vh, 240px); padding: 8px 10px; font-size: 0.78rem; }
+    .terminal-controls { padding: 6px 8px; }
+    .hint-line { display: none; } /* чтобы не требовалась прокрутка — подсказка видна в самом терминале */
+
+    /* Блокнот становится вертикальным: одна страница на весь блок,
+       ярлычки снизу, перелистывание сверху вниз */
+    .notebook {
+        width: 100%;
+        max-width: 420px;
+        height: auto;
+        max-height: none;
+        flex: 1 1 auto;
+        min-height: 0;
+        margin-right: 0;
+        margin-bottom: 14px;
     }
-    .panel-toggle {
-        display: inline-block;
+
+    .notebook-cover {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: auto;
+        height: 48%;
+        min-width: 0;
+        min-height: 110px;
     }
-    .terminal-body {
-        height: 400px;
+
+    .notebook.open .notebook-cover {
+        height: 0;
+        min-height: 0;
     }
+
+    .notebook-page-left { display: none; }
+    .notebook-page-right { flex: 1 1 100%; transform-origin: center bottom; }
+
+    .notebook-mobile-header {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed rgba(0,0,0,0.15);
+    }
+    .notebook-mobile-header .notebook-page-icon { font-size: 1.3rem; margin: 0; }
+    .notebook-mobile-header h3 { margin: 0; font-size: 0.88rem; color: var(--active-cat-color, var(--accent-soft)); }
+
+    .notebook-page-right.flipping-fwd { animation: page-flip-fwd-v 0.45s ease; }
+    .notebook-page-right.flipping-back { animation: page-flip-back-v 0.45s ease; }
+
+    .notebook-tab { top: auto; bottom: -14px; }
+    .notebook-tab.pos-right { right: var(--slot-h); left: auto; border-radius: 5px 5px 0 0; text-align: center; padding: 6px 10px; }
+    .notebook-tab.pos-left { left: var(--slot-h); right: auto; border-radius: 5px 5px 0 0; text-align: center; padding: 6px 10px; }
+}
+
+@media (min-width: 1101px) {
+    .notebook-mobile-header { display: none; }
 }
 
 @media (max-width: 480px) {
-    .terminal-body { font-size: 0.82rem; height: 360px; }
-    .terminal-controls button { font-size: 0.72rem; padding: 7px 4px; }
+    .crt-bezel { padding: 14px 10px 8px; }
+    .terminal-body { height: clamp(100px, 22vh, 200px); font-size: 0.74rem; }
+    .terminal-controls button { font-size: 0.68rem; padding: 6px 4px; }
+    .notebook-tab { font-size: 0.6rem; min-width: 56px; }
 }
 
 @media (max-height: 760px) and (min-width: 1101px) {
     .crt-bezel { padding: 22px 22px 12px; }
     .terminal-body { height: clamp(220px, 40vh, 380px); }
+}
+
+@keyframes page-flip-fwd-v {
+    0%   { transform: rotateX(0deg); opacity: 1; }
+    45%  { transform: rotateX(80deg); opacity: 0.25; }
+    55%  { transform: rotateX(-80deg); opacity: 0.25; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+@keyframes page-flip-back-v {
+    0%   { transform: rotateX(0deg); opacity: 1; }
+    45%  { transform: rotateX(-80deg); opacity: 0.25; }
+    55%  { transform: rotateX(80deg); opacity: 0.25; }
+    100% { transform: rotateX(0deg); opacity: 1; }
 }

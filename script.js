@@ -4,9 +4,6 @@
     const output = document.getElementById("terminal-output");
     const input = document.getElementById("terminal-input");
     const body = document.getElementById("terminal-body");
-    const refList = document.getElementById("ref-list");
-    const refPanel = document.getElementById("ref-panel");
-    const toggleBtn = document.getElementById("toggle-panel");
 
     const history = [];
     let historyPos = -1;
@@ -228,43 +225,7 @@
         });
     });
 
-    // ---------- Боковой справочник ----------
-
-    function buildRefPanel() {
-        COMMAND_CATEGORIES.forEach(cat => {
-            const block = document.createElement("div");
-            block.className = "ref-category";
-
-            const h3 = document.createElement("h3");
-            h3.textContent = cat.title;
-            block.appendChild(h3);
-
-            cat.commands.forEach(cmd => {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.className = "ref-cmd";
-                btn.innerHTML = `<b>${cmd.name}</b><span>${cmd.description}</span>`;
-                btn.addEventListener("click", () => {
-                    input.value = cmd.example;
-                    input.focus();
-                    if (window.innerWidth <= 860) {
-                        refPanel.classList.remove("open");
-                        toggleBtn.setAttribute("aria-expanded", "false");
-                    }
-                });
-                block.appendChild(btn);
-            });
-
-            refList.appendChild(block);
-        });
-    }
-
-    toggleBtn.addEventListener("click", () => {
-        const isOpen = refPanel.classList.toggle("open");
-        toggleBtn.setAttribute("aria-expanded", String(isOpen));
-    });
-
-    // ---------- Блокнот-справочник (широкие экраны) ----------
+    // ---------- Блокнот-справочник ----------
 
     const CATEGORY_COLORS = {
         files: "var(--cat-files)",
@@ -287,23 +248,38 @@
         misc: "Прочее"
     };
 
+    const CMDS_PER_PAGE = 6; // чтобы не было прокрутки — длинные категории разбиваются на страницы
+
     const notebook = document.getElementById("notebook");
-    const notebookCover = document.getElementById("notebook-cover");
-    const notebookPages = document.getElementById("notebook-pages");
     const notebookPageLeft = document.querySelector(".notebook-page-left");
     const notebookPageIcon = document.getElementById("notebook-page-icon");
     const notebookPageTitle = document.getElementById("notebook-page-title");
+    const notebookMobileIcon = document.getElementById("notebook-mobile-icon");
+    const notebookMobileTitle = document.getElementById("notebook-mobile-title");
     const notebookPageRight = document.getElementById("notebook-page-right");
+    const notebookCmdList = document.getElementById("notebook-cmd-list");
+    const notebookPager = document.getElementById("notebook-pager");
     const notebookTabsWrap = document.getElementById("notebook-tabs");
     const notebookCloseBtn = document.getElementById("notebook-close");
 
     let notebookOpen = false;
     let notebookActiveIndex = null;
+    let notebookSubPage = 0;
     let notebookTabs = [];
 
-    function fillCommandList(container, cat) {
-        container.innerHTML = "";
-        cat.commands.forEach(cmd => {
+    function isNarrowNotebook() {
+        return window.matchMedia("(max-width: 1100px)").matches;
+    }
+
+    function renderCommandSubPage(cat) {
+        const totalPages = Math.max(1, Math.ceil(cat.commands.length / CMDS_PER_PAGE));
+        notebookSubPage = Math.min(notebookSubPage, totalPages - 1);
+
+        const start = notebookSubPage * CMDS_PER_PAGE;
+        const slice = cat.commands.slice(start, start + CMDS_PER_PAGE);
+
+        notebookCmdList.innerHTML = "";
+        slice.forEach(cmd => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "notebook-cmd";
@@ -312,26 +288,78 @@
                 input.value = cmd.example;
                 input.focus();
             });
-            container.appendChild(btn);
+            notebookCmdList.appendChild(btn);
         });
+
+        if (totalPages > 1) {
+            notebookPager.classList.add("show");
+            notebookPager.innerHTML = "";
+
+            const prevBtn = document.createElement("button");
+            prevBtn.type = "button";
+            prevBtn.textContent = "‹";
+            prevBtn.disabled = notebookSubPage === 0;
+            prevBtn.addEventListener("click", () => {
+                notebookSubPage--;
+                renderCommandSubPage(cat);
+            });
+
+            const label = document.createElement("span");
+            label.textContent = (notebookSubPage + 1) + " / " + totalPages;
+
+            const nextBtn = document.createElement("button");
+            nextBtn.type = "button";
+            nextBtn.textContent = "›";
+            nextBtn.disabled = notebookSubPage === totalPages - 1;
+            nextBtn.addEventListener("click", () => {
+                notebookSubPage++;
+                renderCommandSubPage(cat);
+            });
+
+            notebookPager.appendChild(prevBtn);
+            notebookPager.appendChild(label);
+            notebookPager.appendChild(nextBtn);
+        } else {
+            notebookPager.classList.remove("show");
+            notebookPager.innerHTML = "";
+        }
     }
 
     function renderNotebookPage(index) {
         const cat = COMMAND_CATEGORIES[index];
-        notebookPageIcon.textContent = CATEGORY_ICONS[cat.id] || "📄";
+        const icon = CATEGORY_ICONS[cat.id] || "📄";
+        const color = CATEGORY_COLORS[cat.id] || "var(--accent-soft)";
+
+        notebookPageIcon.textContent = icon;
         notebookPageTitle.textContent = cat.title;
-        notebookPageLeft.style.setProperty("--active-cat-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
-        notebookPageRight.style.setProperty("--active-cat-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
-        fillCommandList(notebookPageRight, cat);
+        notebookMobileIcon.textContent = icon;
+        notebookMobileTitle.textContent = cat.title;
+
+        notebookPageLeft.style.setProperty("--active-cat-color", color);
+        notebookPageRight.style.setProperty("--active-cat-color", color);
+
+        notebookSubPage = 0;
+        renderCommandSubPage(cat);
     }
 
     function updateTabPositions() {
+        // Позиция каждого ярлычка считается по его порядковому номеру ВНУТРИ
+        // своей группы (слева/справа), а не по абсолютному индексу категории —
+        // иначе при переходе в другую группу ярлычки могут накладываться друг
+        // на друга (например, единственный "левый" и один из "правых" могут
+        // случайно получить одинаковый отступ от края).
+        let leftSlot = 0;
+        let rightSlot = 0;
         notebookTabs.forEach((tab, i) => {
             const isActiveLeft = notebookOpen && notebookActiveIndex === i;
             tab.classList.toggle("pos-left", isActiveLeft);
             tab.classList.toggle("pos-right", !isActiveLeft);
-            tab.classList.toggle("active", notebookOpen && notebookActiveIndex === i);
-            tab.setAttribute("aria-pressed", String(notebookOpen && notebookActiveIndex === i));
+            tab.classList.toggle("active", isActiveLeft);
+            tab.setAttribute("aria-pressed", String(isActiveLeft));
+
+            const slot = isActiveLeft ? leftSlot++ : rightSlot++;
+            tab.style.setProperty("--slot-v", (14 + slot * 46) + "px");
+            tab.style.setProperty("--slot-h", (10 + slot * 74) + "px");
         });
     }
 
@@ -341,7 +369,6 @@
             tab.type = "button";
             tab.className = "notebook-tab pos-right";
             tab.style.setProperty("--tab-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
-            tab.style.top = (18 + i * 54) + "px";
             tab.textContent = CATEGORY_SHORT[cat.id] || cat.title;
             tab.title = cat.title + ": " + cat.commands.map(c => c.name).join(", ");
             tab.setAttribute("aria-pressed", "false");
@@ -349,6 +376,7 @@
             notebookTabsWrap.appendChild(tab);
             notebookTabs.push(tab);
         });
+        updateTabPositions(); // расставляет исходные (все справа) слоты
     }
 
     function selectNotebookCategory(i) {
@@ -370,7 +398,9 @@
             return;
         }
 
-        // переключение на другую категорию — анимация переворота страницы
+        // переключение на другую категорию — анимация переворота страницы.
+        // Класс один и тот же, а конкретная анимация (слева-направо на широких
+        // экранах или сверху-вниз на узких) выбирается в CSS через media query.
         const dir = i > notebookActiveIndex ? "flipping-fwd" : "flipping-back";
         notebookPageRight.classList.remove("flipping-fwd", "flipping-back");
         void notebookPageRight.offsetWidth;
@@ -397,7 +427,7 @@
 
     buildNotebookTabs();
     if (COMMAND_CATEGORIES.length > 0) {
-        renderNotebookPage(0); // чтобы обложка-заглушка внутри страниц не была пустой при первом открытии
+        renderNotebookPage(0); // чтобы страница внутри не была пустой при первом открытии
     }
 
     // ---------- Приветствие ----------
@@ -508,6 +538,4 @@
 
     powerBtn.addEventListener("click", togglePower);
     powerBtnOverlay.addEventListener("click", turnOn);
-
-    buildRefPanel();
 })();
