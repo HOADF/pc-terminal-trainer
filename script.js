@@ -260,16 +260,10 @@
     const notebookCmdList = document.getElementById("notebook-cmd-list");
     const notebookPager = document.getElementById("notebook-pager");
     const notebookTabsWrap = document.getElementById("notebook-tabs");
-    const notebookCloseBtn = document.getElementById("notebook-close");
 
-    let notebookOpen = false;
-    let notebookActiveIndex = null;
+    let notebookActiveIndex = 0;
     let notebookSubPage = 0;
     let notebookTabs = [];
-
-    function isNarrowNotebook() {
-        return window.matchMedia("(max-width: 1100px)").matches;
-    }
 
     function renderCommandSubPage(cat) {
         const totalPages = Math.max(1, Math.ceil(cat.commands.length / CMDS_PER_PAGE));
@@ -351,13 +345,13 @@
         let leftSlot = 0;
         let rightSlot = 0;
         notebookTabs.forEach((tab, i) => {
-            const isActiveLeft = notebookOpen && notebookActiveIndex === i;
-            tab.classList.toggle("pos-left", isActiveLeft);
-            tab.classList.toggle("pos-right", !isActiveLeft);
-            tab.classList.toggle("active", isActiveLeft);
-            tab.setAttribute("aria-pressed", String(isActiveLeft));
+            const isActive = notebookActiveIndex === i;
+            tab.classList.toggle("pos-left", isActive);
+            tab.classList.toggle("pos-right", !isActive);
+            tab.classList.toggle("active", isActive);
+            tab.setAttribute("aria-pressed", String(isActive));
 
-            const slot = isActiveLeft ? leftSlot++ : rightSlot++;
+            const slot = isActive ? leftSlot++ : rightSlot++;
             tab.style.setProperty("--slot-v", (14 + slot * 46) + "px");
             tab.style.setProperty("--slot-h", (10 + slot * 74) + "px");
         });
@@ -376,31 +370,13 @@
             notebookTabsWrap.appendChild(tab);
             notebookTabs.push(tab);
         });
-        updateTabPositions(); // расставляет исходные (все справа) слоты
     }
 
+    // Блокнот всегда открыт: клик по ярлычку просто перелистывает на нужную
+    // страницу (сдвиг + затухание), закрывать его больше не нужно.
     function selectNotebookCategory(i) {
-        if (!notebookOpen) {
-            notebookOpen = true;
-            notebook.classList.add("open");
-            notebookActiveIndex = i;
-            renderNotebookPage(i);
-            updateTabPositions();
-            return;
-        }
+        if (notebookActiveIndex === i) return;
 
-        if (notebookActiveIndex === i) {
-            // повторный клик по открытой вкладке — закрываем блокнот обратно на обложку
-            notebookOpen = false;
-            notebook.classList.remove("open");
-            notebookActiveIndex = null;
-            updateTabPositions();
-            return;
-        }
-
-        // переключение на другую категорию — анимация переворота страницы.
-        // Класс один и тот же, а конкретная анимация (слева-направо на широких
-        // экранах или сверху-вниз на узких) выбирается в CSS через media query.
         const dir = i > notebookActiveIndex ? "flipping-fwd" : "flipping-back";
         notebookPageRight.classList.remove("flipping-fwd", "flipping-back");
         void notebookPageRight.offsetWidth;
@@ -410,7 +386,7 @@
             notebookActiveIndex = i;
             renderNotebookPage(i);
             updateTabPositions();
-        }, 220);
+        }, 200);
 
         notebookPageRight.addEventListener("animationend", function onEnd() {
             notebookPageRight.classList.remove("flipping-fwd", "flipping-back");
@@ -418,16 +394,10 @@
         });
     }
 
-    notebookCloseBtn.addEventListener("click", () => {
-        notebookOpen = false;
-        notebook.classList.remove("open");
-        notebookActiveIndex = null;
-        updateTabPositions();
-    });
-
     buildNotebookTabs();
+    updateTabPositions();
     if (COMMAND_CATEGORIES.length > 0) {
-        renderNotebookPage(0); // чтобы страница внутри не была пустой при первом открытии
+        renderNotebookPage(notebookActiveIndex);
     }
 
     // ---------- Приветствие ----------

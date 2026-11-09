@@ -40,7 +40,7 @@ body {
 
 .layout {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     gap: 22px;
     flex-wrap: nowrap;
@@ -56,7 +56,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 /* ---------- Старый монитор (корпус вокруг терминала) ---------- */
@@ -427,62 +427,9 @@ body {
     margin-right: 6px; /* место, чтобы ярлычки не обрезались краем экрана */
 }
 
-.notebook-cover {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 50%;
-    min-width: 160px;
-    background: linear-gradient(160deg, #2a2f3a, #14161c);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: -8px 10px 24px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 20px 16px;
-    z-index: 2;
-    transition: width 0.35s ease, opacity 0.3s ease, padding 0.3s ease;
-}
-
-.notebook.open .notebook-cover {
-    width: 0;
-    min-width: 0;
-    opacity: 0;
-    padding: 0;
-    border-width: 0;
-    pointer-events: none;
-}
-
-.notebook-cover h2 {
-    margin: 0 0 6px;
-    font-size: 1.1rem;
-    color: var(--accent);
-    letter-spacing: 0.5px;
-}
-
-.notebook-cover p {
-    margin: 0 0 16px;
-    color: var(--muted);
-    font-size: 0.8rem;
-}
-
-.notebook-cover-label {
-    display: inline-block;
-    padding: 6px 14px;
-    border: 1px dashed var(--border);
-    border-radius: 20px;
-    color: var(--muted);
-    font-size: 0.68rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-/* внешняя тёмная "обложка" — рамка вокруг белых страниц, чуть крупнее их */
+/* внешняя тёмная "обложка" — рамка вокруг белых страниц, чуть крупнее их.
+   Блокнот всегда открыт (не закрывается), поэтому рамка видна постоянно
+   и без анимации — так гарантированно нет никакого "прыжка" размера. */
 .notebook-pages {
     position: absolute;
     inset: 0;
@@ -491,14 +438,6 @@ body {
     background: linear-gradient(160deg, #2a2f3a, #14161c);
     border: 1px solid var(--border);
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.notebook.open .notebook-pages {
-    opacity: 1;
-    pointer-events: auto;
 }
 
 /* внутренние белые страницы — чуть меньше обложки, виден тёмный кант */
@@ -510,7 +449,6 @@ body {
     background: var(--paper-bg);
     border-radius: 7px;
     overflow: hidden;
-    perspective: 1400px;
 }
 
 .notebook-page {
@@ -549,8 +487,6 @@ body {
 .notebook-page-right {
     display: flex;
     flex-direction: column;
-    transform-origin: left center;
-    backface-visibility: hidden;
 }
 
 .notebook-cmd-list {
@@ -559,53 +495,25 @@ body {
     overflow: hidden;
 }
 
-.notebook-page-right.flipping-fwd { animation: page-flip-fwd 0.45s ease; }
-.notebook-page-right.flipping-back { animation: page-flip-back 0.45s ease; }
+/* Смена категории: страница сдвигается в сторону перехода и гаснет,
+   затем (когда контент уже подменён в JS) выезжает обратно с другой
+   стороны и проявляется. Без 3D-поворота текста — так нет искажения
+   перспективой, из-за которого раньше буквы выглядели "подвисающими". */
+.notebook-page-right.flipping-fwd { animation: page-slide-fwd 0.4s ease; }
+.notebook-page-right.flipping-back { animation: page-slide-back 0.4s ease; }
 
-@keyframes page-flip-fwd {
-    0%   { transform: rotateY(0deg); opacity: 1; }
-    45%  { transform: rotateY(-80deg); opacity: 0.25; }
-    55%  { transform: rotateY(80deg); opacity: 0.25; }
-    100% { transform: rotateY(0deg); opacity: 1; }
+@keyframes page-slide-fwd {
+    0%   { transform: translateX(0); opacity: 1; }
+    45%  { transform: translateX(-22px); opacity: 0; }
+    55%  { transform: translateX(22px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
 }
 
-@keyframes page-flip-back {
-    0%   { transform: rotateY(0deg); opacity: 1; }
-    45%  { transform: rotateY(80deg); opacity: 0.25; }
-    55%  { transform: rotateY(-80deg); opacity: 0.25; }
-    100% { transform: rotateY(0deg); opacity: 1; }
-}
-
-.notebook-close {
-    position: absolute;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 6;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #d8d3c5;
-    cursor: pointer;
-    font-size: 0.72rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease, color 0.2s ease;
-}
-
-.notebook.open .notebook-close {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.notebook-close:hover {
-    color: var(--accent);
+@keyframes page-slide-back {
+    0%   { transform: translateX(0); opacity: 1; }
+    45%  { transform: translateX(22px); opacity: 0; }
+    55%  { transform: translateX(-22px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
 }
 
 .notebook-tabs {
@@ -805,24 +713,8 @@ body {
         margin-bottom: 14px;
     }
 
-    .notebook-cover {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: auto;
-        height: 48%;
-        min-width: 0;
-        min-height: 110px;
-    }
-
-    .notebook.open .notebook-cover {
-        height: 0;
-        min-height: 0;
-    }
-
     .notebook-page-left { display: none; }
-    .notebook-page-right { flex: 1 1 100%; transform-origin: center bottom; }
+    .notebook-page-right { flex: 1 1 100%; }
 
     .notebook-mobile-header {
         display: flex !important;
@@ -835,8 +727,8 @@ body {
     .notebook-mobile-header .notebook-page-icon { font-size: 1.3rem; margin: 0; }
     .notebook-mobile-header h3 { margin: 0; font-size: 0.88rem; color: var(--active-cat-color, var(--accent-soft)); }
 
-    .notebook-page-right.flipping-fwd { animation: page-flip-fwd-v 0.45s ease; }
-    .notebook-page-right.flipping-back { animation: page-flip-back-v 0.45s ease; }
+    .notebook-page-right.flipping-fwd { animation: page-slide-fwd-v 0.4s ease; }
+    .notebook-page-right.flipping-back { animation: page-slide-back-v 0.4s ease; }
 
     .notebook-tab { top: auto; bottom: -14px; }
     .notebook-tab.pos-right { right: var(--slot-h); left: auto; border-radius: 5px 5px 0 0; text-align: center; padding: 6px 10px; }
@@ -859,16 +751,16 @@ body {
     .terminal-body { height: clamp(220px, 40vh, 380px); }
 }
 
-@keyframes page-flip-fwd-v {
-    0%   { transform: rotateX(0deg); opacity: 1; }
-    45%  { transform: rotateX(80deg); opacity: 0.25; }
-    55%  { transform: rotateX(-80deg); opacity: 0.25; }
-    100% { transform: rotateX(0deg); opacity: 1; }
+@keyframes page-slide-fwd-v {
+    0%   { transform: translateY(0); opacity: 1; }
+    45%  { transform: translateY(-16px); opacity: 0; }
+    55%  { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes page-flip-back-v {
-    0%   { transform: rotateX(0deg); opacity: 1; }
-    45%  { transform: rotateX(-80deg); opacity: 0.25; }
-    55%  { transform: rotateX(80deg); opacity: 0.25; }
-    100% { transform: rotateX(0deg); opacity: 1; }
+@keyframes page-slide-back-v {
+    0%   { transform: translateY(0); opacity: 1; }
+    45%  { transform: translateY(16px); opacity: 0; }
+    55%  { transform: translateY(-16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
 }
