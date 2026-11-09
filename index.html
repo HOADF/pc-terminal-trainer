@@ -20,14 +20,6 @@
 </head>
 <body>
 
-    <header class="top-bar">
-        <h1>PC Terminal Trainer</h1>
-        <p>Тренажёр команд Windows (CMD) — вводите команды и смотрите примерный результат</p>
-        <button id="toggle-panel" class="panel-toggle" type="button" aria-expanded="false" aria-controls="ref-panel">
-            📖 Список команд
-        </button>
-    </header>
-
     <main class="layout">
         <section class="terminal-wrap">
             <div class="crt-monitor crt-off" id="crt-monitor">
@@ -88,8 +80,33 @@
                 <div class="crt-stand-base"></div>
             </div>
             <p class="hint-line">Нажмите кнопку питания, чтобы включить монитор. Потом введите <code>help</code>, чтобы увидеть список всех команд, или начните печатать — появятся подсказки. Tab — автодополнение, ↑/↓ — история команд.</p>
+
+            <button id="toggle-panel" class="panel-toggle" type="button" aria-expanded="false" aria-controls="ref-panel">
+                📖 Список команд
+            </button>
         </section>
 
+        <!-- Блокнот-справочник (широкие экраны) -->
+        <aside class="notebook" id="notebook" aria-label="Справочник команд">
+            <div class="notebook-cover" id="notebook-cover">
+                <h2>PC Terminal Trainer</h2>
+                <p>Тренажёр команд Windows (CMD)</p>
+                <span class="notebook-cover-label">Коды к терминалу</span>
+            </div>
+
+            <div class="notebook-pages" id="notebook-pages">
+                <button type="button" class="notebook-close" id="notebook-close" aria-label="Закрыть блокнот">✕</button>
+                <div class="notebook-page notebook-page-left">
+                    <div class="notebook-page-icon" id="notebook-page-icon">📁</div>
+                    <h3 id="notebook-page-title">Файлы и папки</h3>
+                </div>
+                <div class="notebook-page notebook-page-right" id="notebook-page-right"></div>
+            </div>
+
+            <div class="notebook-tabs" id="notebook-tabs"></div>
+        </aside>
+
+        <!-- Простой список команд (мобильные экраны) -->
         <aside class="ref-panel" id="ref-panel">
             <h2>Справочник команд</h2>
             <div id="ref-list"></div>

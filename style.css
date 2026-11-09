@@ -8,6 +8,12 @@
     --muted: #8a8f98;
     --border: #262b36;
     --danger: #ff6b6b;
+
+    /* цвета категорий в справочнике-блокноте */
+    --cat-files: #55d667;
+    --cat-system: #f2b84b;
+    --cat-network: #4bb8f2;
+    --cat-misc: #c792ea;
 }
 
 * { box-sizing: border-box; }
@@ -21,24 +27,6 @@ html, body {
     min-height: 100%;
 }
 
-.top-bar {
-    padding: 24px 20px 12px;
-    text-align: center;
-}
-
-.top-bar h1 {
-    margin: 0 0 6px;
-    font-size: 1.6rem;
-    color: var(--accent);
-    letter-spacing: 0.5px;
-}
-
-.top-bar p {
-    margin: 0 0 14px;
-    color: var(--muted);
-    font-size: 0.95rem;
-}
-
 .panel-toggle {
     background: var(--panel-bg);
     border: 1px solid var(--border);
@@ -48,6 +36,7 @@ html, body {
     cursor: pointer;
     font-size: 0.9rem;
     display: none;
+    margin: 12px auto 0;
 }
 
 .panel-toggle:hover {
@@ -55,17 +44,18 @@ html, body {
 }
 
 .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px 20px;
-    align-items: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: nowrap;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 .terminal-wrap {
     min-width: 0;
+    max-width: 760px;
 }
 
 /* ---------- Старый монитор (корпус вокруг терминала) ---------- */
@@ -337,7 +327,7 @@ html, body {
 
 .terminal-body {
     padding: 14px 16px;
-    height: 460px;
+    height: clamp(260px, 46vh, 460px);
     overflow-y: auto;
     overflow-x: hidden;
     font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
@@ -423,6 +413,254 @@ html, body {
     color: var(--accent);
 }
 
+/* ---------- Блокнот-справочник (широкие экраны) ---------- */
+
+.notebook {
+    position: relative;
+    width: 360px;
+    flex-shrink: 0;
+    height: clamp(420px, 70vh, 640px);
+    font-size: 0.85rem;
+}
+
+.notebook-cover {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 52%;
+    min-width: 170px;
+    background: linear-gradient(160deg, #2a2f3a, #14161c);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: -8px 10px 24px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 16px;
+    z-index: 2;
+    transition: width 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.notebook.open .notebook-cover {
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    padding: 0;
+    border-width: 0;
+    pointer-events: none;
+}
+
+.notebook-cover h2 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+}
+
+.notebook-cover p {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
+.notebook-cover-label {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.notebook-pages {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    perspective: 1400px;
+}
+
+.notebook.open .notebook-pages {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notebook-page {
+    min-width: 0;
+    padding: 20px 14px;
+    overflow-y: auto;
+}
+
+.notebook-page-left {
+    flex: 0 0 36%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(160deg, #181b22, #0f1116);
+    border-right: 1px solid var(--border);
+}
+
+.notebook-page-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.notebook-page-left h3 {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--active-cat-color, var(--accent));
+}
+
+.notebook-page-right {
+    flex: 1 1 auto;
+    transform-origin: left center;
+    backface-visibility: hidden;
+}
+
+.notebook-page-right.flipping-fwd { animation: page-flip-fwd 0.45s ease; }
+.notebook-page-right.flipping-back { animation: page-flip-back 0.45s ease; }
+
+@keyframes page-flip-fwd {
+    0%   { transform: rotateY(0deg); opacity: 1; }
+    45%  { transform: rotateY(-80deg); opacity: 0.25; }
+    55%  { transform: rotateY(80deg); opacity: 0.25; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+@keyframes page-flip-back {
+    0%   { transform: rotateY(0deg); opacity: 1; }
+    45%  { transform: rotateY(80deg); opacity: 0.25; }
+    55%  { transform: rotateY(-80deg); opacity: 0.25; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+.notebook-close {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.notebook.open .notebook-close {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notebook-close:hover {
+    color: var(--accent);
+    border-color: var(--accent-soft);
+}
+
+.notebook-tabs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.notebook-tab {
+    position: absolute;
+    min-width: 92px;
+    padding: 9px 12px;
+    background: var(--tab-color, var(--accent));
+    color: #10121a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+    transition: right 0.4s ease, left 0.4s ease, filter 0.2s ease, outline-color 0.2s ease;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+}
+
+.notebook-tab.pos-right {
+    right: -20px;
+    left: auto;
+    border-radius: 6px 0 0 6px;
+    text-align: right;
+    padding-right: 24px;
+}
+
+.notebook-tab.pos-left {
+    left: -20px;
+    right: auto;
+    border-radius: 0 6px 6px 0;
+    text-align: left;
+    padding-left: 24px;
+}
+
+.notebook-tab:hover {
+    filter: brightness(1.15);
+}
+
+.notebook-tab.active {
+    outline-color: rgba(255,255,255,0.55);
+}
+
+.notebook-cmd {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--term-text);
+    padding: 7px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: block;
+}
+
+.notebook-cmd:hover {
+    background: #1b1f28;
+}
+
+.notebook-cmd b {
+    color: var(--active-cat-color, var(--accent));
+    font-family: "Cascadia Code", "Consolas", monospace;
+}
+
+.notebook-cmd span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.76rem;
+    margin-top: 2px;
+}
+
+/* ---------- Простой список команд (мобильные экраны) ---------- */
+
 .ref-panel {
     background: var(--panel-bg);
     border: 1px solid var(--border);
@@ -430,6 +668,7 @@ html, body {
     padding: 16px;
     max-height: 560px;
     overflow-y: auto;
+    display: none;
 }
 
 .ref-panel h2 {
@@ -525,13 +764,25 @@ footer a:hover { text-decoration: underline; }
 }
 
 /* Адаптивность */
-@media (max-width: 860px) {
+
+/* Блокнот умещается только там, где реально есть место рядом с монитором */
+@media (min-width: 1101px) {
+    .notebook { display: block; }
+}
+
+@media (max-width: 1100px) {
     .layout {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        min-height: 0;
+        padding: 20px 20px 4px;
+    }
+    .notebook {
+        display: none;
     }
     .ref-panel {
-        display: none;
         max-height: 50vh;
+        width: 100%;
+        max-width: 760px;
     }
     .ref-panel.open {
         display: block;
@@ -545,7 +796,11 @@ footer a:hover { text-decoration: underline; }
 }
 
 @media (max-width: 480px) {
-    .top-bar h1 { font-size: 1.3rem; }
     .terminal-body { font-size: 0.82rem; height: 360px; }
     .terminal-controls button { font-size: 0.72rem; padding: 7px 4px; }
+}
+
+@media (max-height: 760px) and (min-width: 1101px) {
+    .crt-bezel { padding: 22px 22px 12px; }
+    .terminal-body { height: clamp(220px, 40vh, 380px); }
 }

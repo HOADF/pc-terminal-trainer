@@ -264,6 +264,142 @@
         toggleBtn.setAttribute("aria-expanded", String(isOpen));
     });
 
+    // ---------- Блокнот-справочник (широкие экраны) ----------
+
+    const CATEGORY_COLORS = {
+        files: "var(--cat-files)",
+        system: "var(--cat-system)",
+        network: "var(--cat-network)",
+        misc: "var(--cat-misc)"
+    };
+
+    const CATEGORY_ICONS = {
+        files: "📁",
+        system: "🖥",
+        network: "🌐",
+        misc: "⚙"
+    };
+
+    const CATEGORY_SHORT = {
+        files: "Файлы",
+        system: "Система",
+        network: "Сеть",
+        misc: "Прочее"
+    };
+
+    const notebook = document.getElementById("notebook");
+    const notebookCover = document.getElementById("notebook-cover");
+    const notebookPages = document.getElementById("notebook-pages");
+    const notebookPageLeft = document.querySelector(".notebook-page-left");
+    const notebookPageIcon = document.getElementById("notebook-page-icon");
+    const notebookPageTitle = document.getElementById("notebook-page-title");
+    const notebookPageRight = document.getElementById("notebook-page-right");
+    const notebookTabsWrap = document.getElementById("notebook-tabs");
+    const notebookCloseBtn = document.getElementById("notebook-close");
+
+    let notebookOpen = false;
+    let notebookActiveIndex = null;
+    let notebookTabs = [];
+
+    function fillCommandList(container, cat) {
+        container.innerHTML = "";
+        cat.commands.forEach(cmd => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "notebook-cmd";
+            btn.innerHTML = `<b>${cmd.name}</b><span>${cmd.description}</span>`;
+            btn.addEventListener("click", () => {
+                input.value = cmd.example;
+                input.focus();
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    function renderNotebookPage(index) {
+        const cat = COMMAND_CATEGORIES[index];
+        notebookPageIcon.textContent = CATEGORY_ICONS[cat.id] || "📄";
+        notebookPageTitle.textContent = cat.title;
+        notebookPageLeft.style.setProperty("--active-cat-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
+        notebookPageRight.style.setProperty("--active-cat-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
+        fillCommandList(notebookPageRight, cat);
+    }
+
+    function updateTabPositions() {
+        notebookTabs.forEach((tab, i) => {
+            const isActiveLeft = notebookOpen && notebookActiveIndex === i;
+            tab.classList.toggle("pos-left", isActiveLeft);
+            tab.classList.toggle("pos-right", !isActiveLeft);
+            tab.classList.toggle("active", notebookOpen && notebookActiveIndex === i);
+            tab.setAttribute("aria-pressed", String(notebookOpen && notebookActiveIndex === i));
+        });
+    }
+
+    function buildNotebookTabs() {
+        COMMAND_CATEGORIES.forEach((cat, i) => {
+            const tab = document.createElement("button");
+            tab.type = "button";
+            tab.className = "notebook-tab pos-right";
+            tab.style.setProperty("--tab-color", CATEGORY_COLORS[cat.id] || "var(--accent)");
+            tab.style.top = (18 + i * 54) + "px";
+            tab.textContent = CATEGORY_SHORT[cat.id] || cat.title;
+            tab.title = cat.title + ": " + cat.commands.map(c => c.name).join(", ");
+            tab.setAttribute("aria-pressed", "false");
+            tab.addEventListener("click", () => selectNotebookCategory(i));
+            notebookTabsWrap.appendChild(tab);
+            notebookTabs.push(tab);
+        });
+    }
+
+    function selectNotebookCategory(i) {
+        if (!notebookOpen) {
+            notebookOpen = true;
+            notebook.classList.add("open");
+            notebookActiveIndex = i;
+            renderNotebookPage(i);
+            updateTabPositions();
+            return;
+        }
+
+        if (notebookActiveIndex === i) {
+            // повторный клик по открытой вкладке — закрываем блокнот обратно на обложку
+            notebookOpen = false;
+            notebook.classList.remove("open");
+            notebookActiveIndex = null;
+            updateTabPositions();
+            return;
+        }
+
+        // переключение на другую категорию — анимация переворота страницы
+        const dir = i > notebookActiveIndex ? "flipping-fwd" : "flipping-back";
+        notebookPageRight.classList.remove("flipping-fwd", "flipping-back");
+        void notebookPageRight.offsetWidth;
+        notebookPageRight.classList.add(dir);
+
+        setTimeout(() => {
+            notebookActiveIndex = i;
+            renderNotebookPage(i);
+            updateTabPositions();
+        }, 220);
+
+        notebookPageRight.addEventListener("animationend", function onEnd() {
+            notebookPageRight.classList.remove("flipping-fwd", "flipping-back");
+            notebookPageRight.removeEventListener("animationend", onEnd);
+        });
+    }
+
+    notebookCloseBtn.addEventListener("click", () => {
+        notebookOpen = false;
+        notebook.classList.remove("open");
+        notebookActiveIndex = null;
+        updateTabPositions();
+    });
+
+    buildNotebookTabs();
+    if (COMMAND_CATEGORIES.length > 0) {
+        renderNotebookPage(0); // чтобы обложка-заглушка внутри страниц не была пустой при первом открытии
+    }
+
     // ---------- Приветствие ----------
 
     function showWelcome() {
