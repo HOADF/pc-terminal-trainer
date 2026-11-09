@@ -275,7 +275,84 @@
         appendLine("", "line-output");
     }
 
+    // ---------- Корпус монитора: включение и загрузка ----------
+
+    const crtMonitor = document.getElementById("crt-monitor");
+    const crtFlash = document.getElementById("crt-flash");
+    const powerBtn = document.getElementById("power-btn");
+    const powerBtnOverlay = document.getElementById("power-btn-overlay");
+
+    const BOOT_LINES = [
+        "HOADF BIOS v2.6  —  Copyright (C) HOADF",
+        "Проверка видеопамяти...                OK",
+        "Проверка оперативной памяти: 640K       OK",
+        "Обнаружен накопитель: C:\\                OK",
+        "Загрузка HOADF Terminal...",
+    ];
+
+    let isOn = false;
+    let isBusy = false;
+
+    function typeBootLine(text, className, delay) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                appendLine(text, className || "line-system");
+                scrollToBottom();
+                resolve();
+            }, delay);
+        });
+    }
+
+    async function runBootSequence() {
+        output.innerHTML = "";
+        for (let i = 0; i < BOOT_LINES.length; i++) {
+            await typeBootLine(BOOT_LINES[i], "line-system", i === 0 ? 120 : 220);
+        }
+        await typeBootLine("", "line-output", 150);
+        output.innerHTML = "";
+        showWelcome();
+        input.disabled = false;
+        input.focus();
+        isBusy = false;
+    }
+
+    function turnOn() {
+        if (isOn || isBusy) return;
+        isBusy = true;
+        isOn = true;
+        crtMonitor.classList.add("crt-on");
+        crtMonitor.classList.remove("crt-off");
+        powerBtn.setAttribute("aria-pressed", "true");
+        crtFlash.classList.remove("playing");
+        // форсируем перезапуск анимации
+        void crtFlash.offsetWidth;
+        crtFlash.classList.add("playing");
+        runBootSequence();
+    }
+
+    function turnOff() {
+        if (!isOn || isBusy) return;
+        isOn = false;
+        crtMonitor.classList.remove("crt-on");
+        crtMonitor.classList.add("crt-off");
+        powerBtn.setAttribute("aria-pressed", "false");
+        crtFlash.classList.remove("playing");
+        input.disabled = true;
+        input.value = "";
+        output.innerHTML = "";
+        clearSuggest();
+    }
+
+    function togglePower() {
+        if (isOn) {
+            turnOff();
+        } else {
+            turnOn();
+        }
+    }
+
+    powerBtn.addEventListener("click", togglePower);
+    powerBtnOverlay.addEventListener("click", turnOn);
+
     buildRefPanel();
-    showWelcome();
-    input.focus();
 })();

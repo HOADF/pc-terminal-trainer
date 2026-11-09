@@ -30,30 +30,55 @@
 
     <main class="layout">
         <section class="terminal-wrap">
-            <div class="terminal-window">
-                <div class="terminal-titlebar">
-                    <div class="tb-dots">
-                        <span class="dot dot-red"></span>
-                        <span class="dot dot-yellow"></span>
-                        <span class="dot dot-green"></span>
+            <div class="crt-monitor crt-off" id="crt-monitor">
+                <div class="crt-bezel">
+                    <div class="crt-brand">HOADF <span>14&Prime;</span></div>
+
+                    <div class="crt-screen">
+                        <div class="crt-flash" id="crt-flash"></div>
+
+                        <div class="crt-off-overlay" id="crt-off-overlay">
+                            <button type="button" id="power-btn-overlay" class="power-btn-overlay">
+                                ⏻ Включить монитор
+                            </button>
+                        </div>
+
+                        <div class="terminal-window">
+                            <div class="terminal-titlebar">
+                                <div class="tb-dots">
+                                    <span class="dot dot-red"></span>
+                                    <span class="dot dot-yellow"></span>
+                                    <span class="dot dot-green"></span>
+                                </div>
+                                <span class="tb-title">Командная строка</span>
+                            </div>
+                            <div class="terminal-body" id="terminal-body">
+                                <div class="terminal-output" id="terminal-output"></div>
+                                <div class="terminal-input-line">
+                                    <span class="prompt" id="prompt-text">C:\Users\Guest&gt;</span>
+                                    <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Введите команду" disabled>
+                                </div>
+                            </div>
+                            <div class="terminal-controls">
+                                <button type="button" data-action="tab">Tab ↹</button>
+                                <button type="button" data-action="up">↑ История</button>
+                                <button type="button" data-action="down">↓ История</button>
+                                <button type="button" data-action="enter">Enter ⏎</button>
+                            </div>
+                        </div>
                     </div>
-                    <span class="tb-title">Командная строка</span>
-                </div>
-                <div class="terminal-body" id="terminal-body">
-                    <div class="terminal-output" id="terminal-output"></div>
-                    <div class="terminal-input-line">
-                        <span class="prompt" id="prompt-text">C:\Users\Guest&gt;</span>
-                        <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Введите команду">
+
+                    <div class="crt-panel">
+                        <span class="crt-led" id="crt-led"></span>
+                        <button type="button" id="power-btn" class="power-btn" aria-label="Включить/выключить монитор" aria-pressed="false">⏻</button>
+                        <span class="crt-knob"></span>
+                        <span class="crt-knob"></span>
                     </div>
                 </div>
-                <div class="terminal-controls">
-                    <button type="button" data-action="tab">Tab ↹</button>
-                    <button type="button" data-action="up">↑ История</button>
-                    <button type="button" data-action="down">↓ История</button>
-                    <button type="button" data-action="enter">Enter ⏎</button>
-                </div>
+                <div class="crt-stand"></div>
+                <div class="crt-stand-base"></div>
             </div>
-            <p class="hint-line">Введите <code>help</code>, чтобы увидеть список всех команд, или начните печатать — появятся подсказки. Tab — автодополнение, ↑/↓ — история команд.</p>
+            <p class="hint-line">Нажмите кнопку питания, чтобы включить монитор. Потом введите <code>help</code>, чтобы увидеть список всех команд, или начните печатать — появятся подсказки. Tab — автодополнение, ↑/↓ — история команд.</p>
         </section>
 
         <aside class="ref-panel" id="ref-panel">

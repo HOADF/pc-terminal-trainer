@@ -68,6 +68,189 @@ html, body {
     min-width: 0;
 }
 
+/* ---------- Старый монитор (корпус вокруг терминала) ---------- */
+
+.crt-monitor {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.crt-bezel {
+    background: linear-gradient(180deg, #d9d4c8, #b9b3a4);
+    border-radius: 22px;
+    padding: 22px 22px 14px;
+    box-shadow:
+        0 18px 40px rgba(0,0,0,0.45),
+        inset 0 2px 0 rgba(255,255,255,0.5),
+        inset 0 -6px 12px rgba(0,0,0,0.15);
+    border: 1px solid #8f897a;
+}
+
+.crt-brand {
+    text-align: center;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #5b564a;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.crt-brand span {
+    font-weight: 400;
+    color: #847e6d;
+}
+
+.crt-screen {
+    position: relative;
+    background: #050505;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow:
+        inset 0 0 0 6px #1a1a1a,
+        inset 0 0 30px rgba(0,0,0,0.9);
+    overflow: hidden;
+}
+
+.crt-screen .terminal-window {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #1c1f26;
+}
+
+.crt-off-overlay {
+    position: absolute;
+    inset: 14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    border-radius: 6px;
+    transition: opacity 0.25s ease;
+}
+
+.power-btn-overlay {
+    background: #15181f;
+    border: 1px solid #2a2f3a;
+    color: var(--muted);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.power-btn-overlay:hover {
+    color: var(--accent);
+    border-color: var(--accent-soft);
+}
+
+.crt-flash {
+    position: absolute;
+    inset: 14px;
+    z-index: 6;
+    background: #fff;
+    border-radius: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transform: scaleY(0.02);
+}
+
+.crt-flash.playing {
+    animation: crt-power-on 0.55s ease-out forwards;
+}
+
+@keyframes crt-power-on {
+    0%   { opacity: 1; transform: scaleY(0.02); background: #fff; }
+    35%  { opacity: 1; transform: scaleY(0.04); background: #fff; }
+    55%  { opacity: 0.9; transform: scaleY(1); background: #dfffe8; }
+    75%  { opacity: 0.4; transform: scaleY(1); }
+    100% { opacity: 0; transform: scaleY(1); }
+}
+
+.crt-monitor.crt-on .crt-off-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.crt-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px 0 4px;
+}
+
+.crt-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5a1414;
+    box-shadow: inset 0 0 2px rgba(0,0,0,0.6);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.crt-monitor.crt-on .crt-led {
+    background: #3fef5a;
+    box-shadow: 0 0 8px #3fef5a, inset 0 0 2px rgba(0,0,0,0.3);
+}
+
+.power-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #efe9dd, #c7c0b0);
+    border: 1px solid #938d7d;
+    color: #5b564a;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+}
+
+.power-btn:active {
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.3);
+}
+
+.crt-monitor.crt-on .power-btn {
+    color: var(--accent-soft);
+}
+
+.crt-knob {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #efe9dd, #c7c0b0);
+    border: 1px solid #938d7d;
+}
+
+.crt-stand {
+    width: 90px;
+    height: 24px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #c7c0b0, #a39c8c);
+    clip-path: polygon(20% 0, 80% 0, 100% 100%, 0% 100%);
+}
+
+.crt-stand-base {
+    width: 170px;
+    height: 12px;
+    margin: 0 auto;
+    background: #a39c8c;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 600px) {
+    .crt-bezel { padding: 14px 12px 10px; border-radius: 16px; }
+    .crt-brand { font-size: 0.65rem; }
+    .crt-stand { width: 64px; }
+    .crt-stand-base { width: 120px; }
+}
+
 .terminal-window {
     background: var(--term-bg);
     border-radius: 10px;
